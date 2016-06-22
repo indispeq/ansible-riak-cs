@@ -1,0 +1,21 @@
+---
+
+- apt: name="{{ item }}" update_cache=yes
+  when: ansible_distribution == 'Ubuntu'
+  with_items:
+    - "libssl0.9.8"
+    - "libpam0g-dev"
+  tags:
+    - riak-node-prereq
+
+- apt: deb="{{ riakkv_package_url }}" update_cache=yes
+  tags:
+    - riak-node-pkg
+
+- apt: deb="{{ riakcs_package_url }}" update_cache=yes
+  tags:
+    - riak-node-pkg
+
+- apt: deb="{{ stanchion_package_url }}" update_cache=yes
+  tags:
+    - stanchion-node-pkg

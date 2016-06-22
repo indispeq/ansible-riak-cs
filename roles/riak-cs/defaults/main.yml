@@ -1,0 +1,16 @@
+---
+
+riakkv_version: 2.1.4
+riakkv_package_url: http://s3.amazonaws.com/downloads.basho.com/riak/2.1/2.1.4/ubuntu/trusty/riak_2.1.4-1_amd64.deb
+riakkv_protocol_buffers_port: 8087
+
+riakcs_version: 2.1.1
+riakcs_package_url: http://s3.amazonaws.com/downloads.basho.com/riak-cs/2.1/2.1.1/ubuntu/trusty/riak-cs_2.1.1-1_amd64.deb
+
+stanchion_version: 2.1.1
+stanchion_package_url: http://s3.amazonaws.com/downloads.basho.com/stanchion/2.1/2.1.1/ubuntu/trusty/stanchion_2.1.1-1_amd64.deb
+stanchion_listener_address: {{ ansible_default_ipv4.address }}
+stanchion_listener_port: 8080
+stanchion_riak_host_address: 127.0.0.1
+stanchion_riak_host_port: 8087
+

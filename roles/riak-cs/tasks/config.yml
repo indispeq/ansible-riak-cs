@@ -1,0 +1,49 @@
+---
+
+# set ulimits
+# tags:
+#   - riak-node-cfg
+
+- lineinfile: dest=/etc/riak/riak.conf regexp="^storage_backend = bitcask" state=absent
+  tags:
+    - riak-node-cfg
+
+- template: src=riak_advanced_config dest=/etc/riak/advanced.config
+  tags:
+    - riak-node-cfg
+
+- lineinfile: dest=/etc/riak/riak.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
+  with_items:
+    - { regexp: "^buckets.default.allow_mult =", line: "buckets.default.allow_mult = true" }
+    - { regexp: "^nodename =", line: "nodename = riak@{{ ansible_default_ipv4.address }}" }
+    - { regexp: "^listener.protobuf.internal =", line: "listener.protobuf.internal = {{ ansible_default_ipv4.address }}:{{ riakkv_protocol_buffers_port }}" }
+    - { regexp: "^erlang.max_ports =", line: "erlang.max_ports = 65536" }
+    - { regexp: "^javascript.map_pool_size =", line: "javascript.map_pool_size = 0" }
+    - { regexp: "^javascript.reduce_pool_size =", line: "javascript.reduce_pool_size = 0" }
+    - { regexp: "^javascript.hook_pool_size =", line: "javascript.hook_pool_size = 0" }
+  tags:
+    - riak-node-cfg
+
+#- lineinfile: dest=/etc/riak/riak.conf regexp="^buckets.default.allow_mult =" line="buckets.default.allow_mult = true"
+#  tags:
+#    - riak-node-cfg
+#
+#- lineinfile: dest=/etc/riak/riak.conf regexp="^nodename =" line="nodename = riak@{{ ansible_default_ipv4.address }}"
+#  tags:
+#    - riak-node-cfg
+#
+#- lineinfile: dest=/etc/riak/riak.conf regexp="^listener.protobuf.internal =" line="listener.protobuf.internal = {{ ansible_default_ipv4.address }}:{{ riakkv_protocol_buffers_port }}"
+#  tags:
+#    - riak-node-cfg
+#
+#- lineinfile: dest=/etc/riak/riak.conf regexp="^erlang.max_ports =" line="erlang.max_ports = 65536"
+#  tags:
+#    - riak-node-cfg
+#
+- lineinfile: dest=/etc/stanchion/stanchion.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
+  with_items:
+    - { regexp: "^listener =", line: "listener = {{ stanchion_listener_address }}:{{ stanchion_listener_port }}" }
+    - { regexp: "^riak_host =", line: "riak_host = {{ stanchion_riak_host_address }}:{{ stanchion_riak_host_port }}" }
+  tags:
+    - stanchion-node-cfg
+
