@@ -1,21 +1,71 @@
 ---
 
-- apt: name="{{ item }}" update_cache=yes
+- name: install Ubuntu prereqs
+  apt: name="{{ item }}" update_cache=yes
   when: ansible_distribution == 'Ubuntu'
   with_items:
     - "libssl0.9.8"
     - "libpam0g-dev"
+    - "apt-transport-https"
   tags:
-    - riak-node-prereq
+    - riak-install
 
-- apt: deb="{{ riakkv_package_url }}" update_cache=yes
+- name: packagecloud riak kv apt key
+  apt_key: url="https://packagecloud.io/basho/riak/gpgkey"
   tags:
-    - riak-node-pkg
+    - riak-install
 
-- apt: deb="{{ riakcs_package_url }}" update_cache=yes
+- name: riak kv packagecloud apt_repo
+  apt_repository: repo="deb https://packagecloud.io/basho/riak/ubuntu/ {{ ansible_distribution_release }} main"
   tags:
-    - riak-node-pkg
+    - riak-install
 
-- apt: deb="{{ stanchion_package_url }}" update_cache=yes
+- name: riak kv packagecloud apt_repo src
+  apt_repository: repo="deb-src https://packagecloud.io/basho/riak/ubuntu/ {{ ansible_distribution_release }} main"
   tags:
-    - stanchion-node-pkg
+    - riak-install
+
+- name: install riak kv
+  apt: name=riak update_cache=yes
+  tags:
+    - riak-install
+
+- name: packagecloud riak cs apt key
+  apt_key: url="https://packagecloud.io/basho/riak-cs/gpgkey"
+  tags:
+    - riak-install
+
+- name: riak cs packagecloud apt_repo
+  apt_repository: repo="deb https://packagecloud.io/basho/riak-cs/ubuntu/ {{ ansible_distribution_release }} main"
+  tags:
+    - riak-install
+
+- name: riak cs packagecloud apt_repo src
+  apt_repository: repo="deb-src https://packagecloud.io/basho/riak-cs/ubuntu/ {{ ansible_distribution_release }} main"
+  tags:
+    - riak-install
+
+- name: install riak cs
+  apt: name=riak-cs update_cache=yes
+  tags:
+    - riak-install
+
+- name: packagecloud stanchion apt key
+  apt_key: url="https://packagecloud.io/basho/stanchion/gpgkey"
+  tags:
+    - riak-install
+
+- name: packagecloud stanchion apt_repo
+  apt_repository: repo="deb https://packagecloud.io/basho/stanchion/ubuntu/ {{ ansible_distribution_release }} main"
+  tags:
+    - stanchion-install
+
+- name: packagecloud stanchion apt_repo src
+  apt_repository: repo="deb-src https://packagecloud.io/basho/stanchion/ubuntu/ {{ ansible_distribution_release }} main"
+  tags:
+    - stanchion-install
+
+- name: install stanchion
+  apt: name=stanchion update_cache=yes
+  tags:
+    - stanchion-install
