@@ -1,0 +1,9 @@
+---
+
+- name: stanchion default ulimit
+  copy: src=etc_default_ulimit dest=/etc/default/stanchion
+
+- lineinfile: dest=/etc/stanchion/stanchion.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
+  with_items:
+    - { regexp: "^listener =", line: "listener = {{ stanchion_listener_address }}:{{ stanchion_listener_port }}" }
+    - { regexp: "^riak_host =", line: "riak_host = {{ riakkv_host_address }}:{{ riakkv_protocol_buffers_port }}" }

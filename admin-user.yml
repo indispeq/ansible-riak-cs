@@ -1,0 +1,86 @@
+---
+
+- hosts: all
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - setup: {}
+- hosts: riak_cs_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  vars:
+    admin_user_name: admin
+    admin_user_email: admin2@admin.com
+    riakcs_listener_address: "{{ ansible_default_ipv4.address }}"
+    riakcs_listener_port: 8080
+
+  tasks:
+    - name: allow anonymous user creation
+      lineinfile: dest=/etc/riak-cs/riak-cs.conf regexp="^anonymous_user_creation =" line="anonymous_user_creation = on"
+      when: inventory_hostname == groups.riak_cs_nodes[0]
+
+    - name: restart riak-cs
+      service: name=riak-cs state=restarted
+      when: inventory_hostname == groups.riak_cs_nodes[0]
+
+    # the url will be the url of the load balancer later on.
+    - name: create admin user and get creds
+      uri:
+        url: "http://{{ riakcs_listener_address }}:{{ riakcs_listener_port }}/riak-cs/user"
+        method: POST
+        body_format: json
+        body: '{"email":"{{ admin_user_email }}", "name":"{{ admin_user_name }}"}'
+        return_content: yes
+        status_code: 201
+      register: create_admin_user
+      when: inventory_hostname == groups.riak_cs_nodes[0]
+
+    - name: add admin creds to stanchion and riak-cs conf
+      lineinfile: dest=/etc/riak-cs/riak-cs.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
+      with_items:
+        - { regexp: "^admin.key =", line: "admin.key = {{ hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_id'] }}" }
+        - { regexp: "^admin.secret =", line: "admin.secret = {{ hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_secret'] }}" }
+
+    - name: remove anonymous user creation
+      lineinfile: dest=/etc/riak-cs/riak-cs.conf regexp="^anonymous_user_creation = on" line="anonymous_user_creation = off"
+      when: inventory_hostname == groups.riak_cs_nodes[0]
+
+    - name: stop riak-cs
+      service: name=riak-cs state=stopped
+
+- hosts: stanchion_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - lineinfile: dest=/etc/stanchion/stanchion.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
+      with_items:
+        - { regexp: "^admin.key =", line: "admin.key = {{ hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_id'] }}" }
+        - { regexp: "^admin.secret =", line: "admin.secret = {{ hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_secret'] }}" }
+
+    - name : restart stanchion
+      service: name=stanchion state=restarted
+
+- hosts: riak_cs_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - name: start riak-cs
+      service: name=riak-cs state=started
+
+- hosts: localhost
+
+  tasks:
+    - debug: var="hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_id']"
+    - debug: var="hostvars[groups['riak_cs_nodes'][0]]['create_admin_user']['json']['key_secret']"

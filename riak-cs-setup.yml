@@ -1,0 +1,99 @@
+---
+
+# start containers
+- hosts: localhost
+  become: true
+  become_user: root
+  become_method: sudo
+  roles:
+  - novafloss.boot
+
+# gather facts
+- hosts: all
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - setup: {}
+
+# install riak kv and cs
+- hosts: riak_cs_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  vars:
+    stanchion_listener_address: "{{ hostvars[groups['stanchion_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+
+  roles:
+    - role: riak-cs
+
+# install haproxy
+- hosts: haproxy_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  roles:
+    - role: riak-cs-haproxy
+
+# install stanchion
+- hosts: stanchion_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  vars:
+    riakkv_host_address: "{{ hostvars[groups['haproxy_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+
+  roles:
+    - role: stanchion
+
+# create cluster and start services
+- hosts: riak_cs_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+  serial: 1
+
+  tasks:
+    - service: name=riak state=started
+
+    - shell: "riak-admin cluster status | grep riak@{{ hostvars[groups['riak_cs_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+      when: inventory_hostname != groups.riak_cs_nodes[0]
+      ignore_errors: true
+      register: result
+
+    - shell: "riak-admin cluster join riak@{{ hostvars[groups['riak_cs_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+      when: (result|failed) and (not result|skipped)
+
+    - shell: "riak-admin cluster plan"
+      when: (result|failed) and (not result|skipped)
+
+    - shell: "riak-admin cluster commit"
+      when: (result|failed) and (not result|skipped)
+
+- hosts: stanchion_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+  serial: 1
+
+  tasks:
+    - service: name=stanchion state=started
+
+- hosts: riak_cs_nodes
+
+  become: yes
+  become_method: sudo
+  become_user: root
+
+  tasks:
+    - service: name=riak-cs state=started

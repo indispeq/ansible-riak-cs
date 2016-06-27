@@ -1,0 +1,14 @@
+---
+haproxy_socket: /var/lib/haproxy/stats
+haproxy_chroot: /var/lib/haproxy
+haproxy_user: haproxy
+haproxy_group: haproxy
+
+# riak kv frontend
+riakkv_protocol_buffers_port: "8087"
+
+# riak kv backend
+riak_nodes: []
+
+# riak cs backend
+riakcs_listener_port: "8080"

@@ -1,7 +1,7 @@
 ---
 
 - name: riak default ulimit
-  copy: src=etc_default_riak dest=/etc/default/riak
+  copy: src=etc_default_ulimit dest=/etc/default/riak
   tags:
     - riak-config
 
@@ -25,12 +25,10 @@
   tags:
     - riak-config
 
-- lineinfile: dest=/etc/stanchion/stanchion.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
-  with_items:
-    - { regexp: "^listener =", line: "listener = {{ stanchion_listener_address }}:{{ stanchion_listener_port }}" }
-    - { regexp: "^riak_host =", line: "riak_host = {{ riakkv_host_address }}:{{ riakkv_protocol_buffers_port }}" }
+- name: riak cs default ulimit
+  copy: src=etc_default_ulimit dest=/etc/default/riak-cs
   tags:
-    - stanchion-config
+    - riak-config
 
 - lineinfile: dest=/etc/riak-cs/riak-cs.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
   with_items:

@@ -1,0 +1,26 @@
+---
+- name: install software-properties-common
+  apt: name=software-properties-common state=installed update_cache=yes
+
+- name: install haproxy 1.6-stable ubuntu 14.04 ppa
+  apt_repository: repo='ppa:vbernat/haproxy-1.6' state=present
+
+- name: Ensure HAProxy is installed
+  apt: name=haproxy state=installed update_cache=yes
+
+- name: Ensure HAProxy is enabled (so init script will start it on Debian).
+  lineinfile:
+    dest: /etc/default/haproxy
+    regexp: "^ENABLED.+$"
+    line: "ENABLED=1"
+    state: present
+
+- name: Copy HAProxy configuration in place.
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+  notify: restart haproxy
+
+- name: Ensure HAProxy is started and enabled on boot.
+  service: name=haproxy state=started enabled=yes

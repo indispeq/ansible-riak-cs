@@ -1,0 +1,7 @@
+---
+
+riakkv_protocol_buffers_port: "8087"
+riakkv_host_address: "{{ ansible_default_ipv4.address }}"
+
+stanchion_listener_address: "{{ ansible_default_ipv4.address }}"
+stanchion_listener_port: "8085"

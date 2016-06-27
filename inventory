@@ -1,5 +1,9 @@
-10.0.140.137 ansible_user=ubuntu
-10.0.140.138 ansible_user=ubuntu
-10.0.140.139 ansible_user=ubuntu
-10.0.140.140 ansible_user=ubuntu
-10.0.140.141 ansible_user=ubuntu
+[riak_cs_nodes]
+riak[0:4].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
+
+[stanchion_nodes]
+haproxy[0:0].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
+#stanchion.lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
+
+[haproxy_nodes]
+haproxy[0:0].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
