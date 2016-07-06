@@ -9,3 +9,6 @@ riakcs_listener_port: "8080"
 
 stanchion_listener_address: "{{ ansible_default_ipv4.address }}"
 stanchion_listener_port: "8085"
+
+riakkv_distributed_cookie: riak
+riakcs_distributed_cookie: riak

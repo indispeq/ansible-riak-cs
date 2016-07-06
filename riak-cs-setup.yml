@@ -18,6 +18,11 @@
   tasks:
     - setup: {}
 
+    - name: "Build hosts file"
+      lineinfile: dest=/etc/hosts regexp='.*{{ item }}$' line="{{ hostvars[item].ansible_default_ipv4.address }} {{item}}" state=present
+      when: hostvars[item].ansible_default_ipv4.address is defined
+      with_items: "{{ groups['all'] }}"
+
 # install riak kv and cs
 - hosts: riak_cs_nodes
 
@@ -27,6 +32,9 @@
 
   vars:
     stanchion_listener_address: "{{ hostvars[groups['stanchion_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+
+  pre_tasks:
+    - include_vars: secrets.yml
 
   roles:
     - role: riak-cs
@@ -65,12 +73,12 @@
   tasks:
     - service: name=riak state=started
 
-    - shell: "riak-admin cluster status | grep riak@{{ hostvars[groups['riak_cs_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+    - shell: "riak-admin cluster status | grep riak@{{ hostvars[groups['riak_cs_nodes'][0]]['inventory_hostname'] }}"
       when: inventory_hostname != groups.riak_cs_nodes[0]
       ignore_errors: true
       register: result
 
-    - shell: "riak-admin cluster join riak@{{ hostvars[groups['riak_cs_nodes'][0]]['ansible_default_ipv4']['address'] }}"
+    - shell: "riak-admin cluster join riak@{{ hostvars[groups['riak_cs_nodes'][0]]['inventory_hostname'] }}"
       when: (result|failed) and (not result|skipped)
 
     - shell: "riak-admin cluster plan"

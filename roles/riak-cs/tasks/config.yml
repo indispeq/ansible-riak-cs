@@ -2,39 +2,29 @@
 
 - name: riak default ulimit
   copy: src=etc_default_ulimit dest=/etc/default/riak
-  tags:
-    - riak-config
 
 - lineinfile: dest=/etc/riak/riak.conf regexp="^storage_backend = bitcask" state=absent
-  tags:
-    - riak-config
 
 - template: src=riak_advanced_config dest=/etc/riak/advanced.config
-  tags:
-    - riak-config
 
 - lineinfile: dest=/etc/riak/riak.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
   with_items:
     - { regexp: "^buckets.default.allow_mult =", line: "buckets.default.allow_mult = true" }
-    - { regexp: "^nodename =", line: "nodename = riak@{{ ansible_default_ipv4.address }}" }
+    - { regexp: "^nodename =", line: "nodename = riak@{{ inventory_hostname }}" }
     - { regexp: "^listener.protobuf.internal =", line: "listener.protobuf.internal = {{ ansible_default_ipv4.address }}:{{ riakkv_protocol_buffers_port }}" }
     - { regexp: "^erlang.max_ports =", line: "erlang.max_ports = 65536" }
     - { regexp: "^javascript.map_pool_size =", line: "javascript.map_pool_size = 0" }
     - { regexp: "^javascript.reduce_pool_size =", line: "javascript.reduce_pool_size = 0" }
     - { regexp: "^javascript.hook_pool_size =", line: "javascript.hook_pool_size = 0" }
-  tags:
-    - riak-config
+    - { regexp: "^distributed_cookie =", line: "distributed_cookie = {{ riakkv_distributed_cookie }}" }
 
 - name: riak cs default ulimit
   copy: src=etc_default_ulimit dest=/etc/default/riak-cs
-  tags:
-    - riak-config
 
 - lineinfile: dest=/etc/riak-cs/riak-cs.conf regexp="{{ item.regexp }}" line="{{ item.line }}"
   with_items:
     - { regexp: "^listener =", line: "listener = {{ riakcs_listener_address }}:{{ riakcs_listener_port }}" }
     - { regexp: "^riak_host =", line: "riak_host = {{ riakkv_host_address }}:{{ riakkv_protocol_buffers_port }}" }
     - { regexp: "^stanchion_host =", line: "stanchion_host = {{ stanchion_listener_address }}:{{ stanchion_listener_port }}" }
-    - { regexp: "^nodename =", line: "nodename = riak-cs@{{ ansible_default_ipv4.address }}" }
-  tags:
-    - riak-config
+    - { regexp: "^nodename =", line: "nodename = riak-cs@{{ inventory_hostname }}" }
+    - { regexp: "^distributed_cookie =", line: "distributed_cookie = {{ riakcs_distributed_cookie }}" }

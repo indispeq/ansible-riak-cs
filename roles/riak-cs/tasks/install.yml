@@ -7,45 +7,27 @@
     - "libssl0.9.8"
     - "libpam0g-dev"
     - "apt-transport-https"
-  tags:
-    - riak-install
 
 - name: packagecloud riak kv apt key
   apt_key: url="https://packagecloud.io/basho/riak/gpgkey"
-  tags:
-    - riak-install
 
 - name: riak kv packagecloud apt_repo
   apt_repository: repo="deb https://packagecloud.io/basho/riak/ubuntu/ {{ ansible_distribution_release }} main"
-  tags:
-    - riak-install
 
 - name: riak kv packagecloud apt_repo src
   apt_repository: repo="deb-src https://packagecloud.io/basho/riak/ubuntu/ {{ ansible_distribution_release }} main"
-  tags:
-    - riak-install
 
 - name: install riak kv
   apt: name=riak update_cache=yes
-  tags:
-    - riak-install
 
 - name: packagecloud riak cs apt key
   apt_key: url="https://packagecloud.io/basho/riak-cs/gpgkey"
-  tags:
-    - riak-install
 
 - name: riak cs packagecloud apt_repo
   apt_repository: repo="deb https://packagecloud.io/basho/riak-cs/ubuntu/ {{ ansible_distribution_release }} main"
-  tags:
-    - riak-install
 
 - name: riak cs packagecloud apt_repo src
   apt_repository: repo="deb-src https://packagecloud.io/basho/riak-cs/ubuntu/ {{ ansible_distribution_release }} main"
-  tags:
-    - riak-install
 
 - name: install riak cs
   apt: name=riak-cs update_cache=yes
-  tags:
-    - riak-install
