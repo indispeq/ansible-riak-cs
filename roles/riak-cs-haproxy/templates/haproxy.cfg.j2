@@ -2,7 +2,7 @@ global
   log /dev/log  local0
   log /dev/log  local1 notice
 {% if haproxy_socket != '' %}
-  stats socket {{ haproxy_socket }} level admin
+  stats socket {{ haproxy_socket }} mode 600 level admin
 {% endif %}
 {% if haproxy_chroot != '' %}
   chroot {{ haproxy_chroot }}
@@ -31,6 +31,17 @@ defaults
   errorfile 502 /etc/haproxy/errors/502.http
   errorfile 503 /etc/haproxy/errors/503.http
   errorfile 504 /etc/haproxy/errors/504.http
+
+{% if haproxy_stats %}
+listen stats
+  bind *:9000
+  mode http
+  stats enable
+  stats hide-version
+  stats realm Haproxy\ Statistics
+  stats uri /haproxy_stats
+  stats auth {{ haproxy_stats_user }}:{{ haproxy_stats_password }}
+{% endif %}
 
 frontend riak_cs_front
     bind              *:8080

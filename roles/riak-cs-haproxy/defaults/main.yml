@@ -1,8 +1,15 @@
 ---
+
+haproxy_vip: 10.0.3.200
+
 haproxy_socket: /var/lib/haproxy/stats
 haproxy_chroot: /var/lib/haproxy
 haproxy_user: haproxy
 haproxy_group: haproxy
+
+haproxy_stats: True
+haproxy_stats_user: admin
+haproxy_stats_password: admin
 
 # riak kv frontend
 riakkv_protocol_buffers_port: "8087"

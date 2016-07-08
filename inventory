@@ -2,8 +2,7 @@
 riak[0:4].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
 
 [stanchion_nodes]
-haproxy[0:0].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
-#stanchion.lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
+haproxy[0:1].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
 
 [haproxy_nodes]
-haproxy[0:0].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'
+haproxy[0:1].lxc lxc_template='ubuntu' lxc_template_options='-r trusty'

@@ -1,4 +1,17 @@
 ---
+
+- sysctl: name="net.ipv4.ip_nonlocal_bind" value=1 sysctl_set=yes state=present reload=yes
+
+- name: install keepalived
+  apt: name=keepalived state=installed update_cache=yes
+
+- name: keepalived conf file
+  template: src=keepalived.conf.j2 dest=/etc/keepalived/keepalived.conf
+  notify: restart keepalived
+
+- name: keepalived service
+  service: name=keepalived state=started enabled=yes
+
 - name: install software-properties-common
   apt: name=software-properties-common state=installed update_cache=yes
 
