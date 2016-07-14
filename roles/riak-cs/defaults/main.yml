@@ -1,6 +1,7 @@
 ---
 
 riakkv_protocol_buffers_port: "8087"
+riakkv_http_internal_port: "8098"
 riakkv_host_address: "{{ ansible_default_ipv4.address }}"
 
 riakcs_version: "2.1.1"
@@ -12,3 +13,9 @@ stanchion_listener_port: "8085"
 
 riakkv_distributed_cookie: riak
 riakcs_distributed_cookie: riak
+
+riak_control: on
+riak_control_auth_mode: off
+riak_control_auth_user:
+  - { user: admin, password: admin }
+

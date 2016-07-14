@@ -12,11 +12,26 @@
     - { regexp: "^buckets.default.allow_mult =", line: "buckets.default.allow_mult = true" }
     - { regexp: "^nodename =", line: "nodename = riak@{{ inventory_hostname }}" }
     - { regexp: "^listener.protobuf.internal =", line: "listener.protobuf.internal = {{ ansible_default_ipv4.address }}:{{ riakkv_protocol_buffers_port }}" }
+    - { regexp: "^listener.http.internal =", line: "listener.http.internal = {{ ansible_default_ipv4.address }}:{{ riakkv_http_internal_port }}" }
     - { regexp: "^erlang.max_ports =", line: "erlang.max_ports = 65536" }
     - { regexp: "^javascript.map_pool_size =", line: "javascript.map_pool_size = 0" }
     - { regexp: "^javascript.reduce_pool_size =", line: "javascript.reduce_pool_size = 0" }
     - { regexp: "^javascript.hook_pool_size =", line: "javascript.hook_pool_size = 0" }
     - { regexp: "^distributed_cookie =", line: "distributed_cookie = {{ riakkv_distributed_cookie }}" }
+
+
+- name: riak_control
+  lineinfile: dest=/etc/riak/riak.conf regexp="^riak_control =" line="riak_control = on"
+  when: riak_control
+
+- name: riak_control auth userlist - needs ssl
+  lineinfile: dest=/etc/riak/riak.conf regexp="^riak_control.auth.mode =" line="riak_control.auth.mode = userlist"
+  when: riak_control_auth_mode == 'userlist'
+
+- name: riak_control users
+  lineinfile: dest=/etc/riak/riak.conf regexp="^riak_control.auth.user.{{ item.user }}.password =" line="riak_control.auth.user.{{ item.user }}.password = {{ item.password }}"
+  with_items: "{{ riak_control_auth_user }}"
+  when: riak_control_auth_mode == 'userlist'
 
 - name: riak cs default ulimit
   copy: src=etc_default_ulimit dest=/etc/default/riak-cs
